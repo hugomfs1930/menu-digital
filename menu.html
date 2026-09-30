@@ -11,10 +11,21 @@
 <body>
     <header>
         <h1>Menu</h1>
+        <p id="restaurant-name">A carregar restaurante...</p>
     </header>
 
     <main>
-        <p>Lista de pratos vai aparecer aqui.</p>
+        <section id="menu-section">
+            <h2>Pratos</h2>
+            <div id="menu-list">A carregar menu...</div>
+        </section>
+
+        <section id="cart-section">
+            <h2>Seu pedido</h2>
+            <div id="cart-list">O carrinho está vazio.</div>
+            <p>Total: <strong id="cart-total">0,00 €</strong></p>
+            <button id="send-order" type="button">Enviar pedido</button>
+        </section>
     </main>
 
     <!-- Firebase -->
