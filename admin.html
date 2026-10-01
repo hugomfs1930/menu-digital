@@ -11,10 +11,29 @@
 <body>
     <header>
         <h1>Backoffice</h1>
+        <p>Gestão de restaurantes e histórico de pedidos</p>
     </header>
 
     <main>
-        <p>Gestão de restaurantes e pratos (ainda sem Firebase).</p>
+        <!-- Login -->
+        <section id="login-section">
+            <h2>Login</h2>
+            <p>Introduz a password para aceder ao backoffice.</p>
+            <input type="password" id="admin-password" placeholder="Password"
+                style="padding: 0.5rem; width: 200px; margin-right: 0.5rem;" />
+            <button id="btn-login" style="padding: 0.5rem 1rem;">Entrar</button>
+            <p id="login-error" style="color: #b91c1c; margin-top: 0.5rem;"></p>
+        </section>
+
+        <!-- Conteúdo do admin (só visível após login) -->
+        <section id="admin-content" style="display: none;">
+            <h2>Histórico de pedidos</h2>
+            <p>Abaixo estão todos os pedidos registados no sistema.</p>
+
+            <div id="orders-history" class="orders-container">
+                <!-- Pedidos carregados via JS -->
+            </div>
+        </section>
     </main>
 
     <!-- Firebase -->

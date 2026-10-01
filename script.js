@@ -277,3 +277,91 @@ function translateStatus(status) {
         default: return status;
     }
 }
+// === Lógica do admin (admin.html) ===
+
+const ADMIN_PASSWORD = 'admin123'; // podes mudar esta password
+
+const loginSection = document.getElementById('login-section');
+const adminContent = document.getElementById('admin-content');
+const passwordInput = document.getElementById('admin-password');
+const btnLogin = document.getElementById('btn-login');
+const loginError = document.getElementById('login-error');
+const ordersHistoryEl = document.getElementById('orders-history');
+
+// Verificar se já há sessão (opcional, simples, só por enquanto)
+const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
+
+if (isLoggedIn) {
+    showAdminContent();
+}
+
+if (btnLogin) {
+    btnLogin.addEventListener('click', () => {
+        const pwd = passwordInput.value.trim();
+        if (pwd === ADMIN_PASSWORD) {
+            sessionStorage.setItem('adminLoggedIn', 'true');
+            loginError.textContent = '';
+            showAdminContent();
+        } else {
+            loginError.textContent = 'Password incorreta.';
+        }
+    });
+}
+
+function showAdminContent() {
+    if (loginSection) loginSection.style.display = 'none';
+    if (adminContent) adminContent.style.display = 'block';
+    loadOrdersHistory();
+}
+
+function loadOrdersHistory() {
+    if (!ordersHistoryEl) return;
+
+    const db = firebase.database();
+    ordersHistoryEl.innerHTML = 'A carregar histórico...';
+
+    db.ref('orders').on('value', snapshot => {
+        ordersHistoryEl.innerHTML = '';
+
+        const orders = [];
+        snapshot.forEach(child => {
+            orders.push({ id: child.key, ...child.val() });
+        });
+
+        if (orders.length === 0) {
+            ordersHistoryEl.textContent = 'Sem pedidos registados.';
+            return;
+        }
+
+        // Ordenar: mais recentes primeiro
+        orders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+        orders.forEach(order => {
+            const orderEl = document.createElement('div');
+            orderEl.className = 'order-card';
+
+            const date = order.createdAt
+                ? new Date(order.createdAt).toLocaleString('pt-PT')
+                : 'Data desconhecida';
+
+            orderEl.innerHTML = `
+        <div class="order-header">
+          <strong>Mesa ${order.tableNumber || 'N/A'} – ${date}</strong>
+          <span class="order-status status-${order.status}">${translateStatus(order.status)}</span>
+        </div>
+        <div class="order-items">
+          ${order.items.map(item => `
+            <div>
+              ${item.name} × ${item.quantity}
+            </div>
+          `).join('')}
+        </div>
+        <div class="order-total">
+          Total: ${order.total.toFixed(2).replace('.', ',')} €
+        </div>
+      `;
+
+            ordersHistoryEl.appendChild(orderEl);
+        });
+    });
+}
