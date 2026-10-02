@@ -15,10 +15,16 @@ window.addEventListener('DOMContentLoaded', () => {
     const restaurantSlug = getQueryParam('restaurant');
 
     if (!restaurantSlug) {
-        document.getElementById('restaurant-name').textContent =
-            'Nenhum restaurante especificado (usa ?restaurant=...)';
-        document.getElementById('menu-list').textContent =
-            'Exemplo: menu.html?restaurant=restaurante-exemplo';
+        const restaurantNameEl = document.getElementById('restaurant-name');
+        if (restaurantNameEl) {
+            restaurantNameEl.textContent =
+                'Nenhum restaurante especificado (usa ?restaurant=...)';
+        }
+        const menuListEl = document.getElementById('menu-list');
+        if (menuListEl) {
+            menuListEl.textContent =
+                'Exemplo: menu.html?restaurant=restaurante-exemplo';
+        }
         return;
     }
 
@@ -36,116 +42,130 @@ window.addEventListener('DOMContentLoaded', () => {
         });
 
         if (!restaurant) {
-            document.getElementById('restaurant-name').textContent = 'Restaurante não encontrado';
-            document.getElementById('menu-list').textContent = 'Verifica o parâmetro "restaurant" no URL.';
+            const restaurantNameEl = document.getElementById('restaurant-name');
+            if (restaurantNameEl) {
+                restaurantNameEl.textContent = 'Restaurante não encontrado';
+            }
+            const menuListEl = document.getElementById('menu-list');
+            if (menuListEl) {
+                menuListEl.textContent = 'Verifica o parâmetro "restaurant" no URL.';
+            }
             return;
         }
 
         // Mostrar nome do restaurante
-        document.getElementById('restaurant-name').textContent = restaurant.name;
+        const restaurantNameEl = document.getElementById('restaurant-name');
+        if (restaurantNameEl) {
+            restaurantNameEl.textContent = restaurant.name;
+        }
 
         // Mostrar menu
         const menuListEl = document.getElementById('menu-list');
-        menuListEl.innerHTML = '';
+        if (menuListEl) {
+            menuListEl.innerHTML = '';
 
-        const menu = restaurant.menu || {};
-        const categories = {};
+            const menu = restaurant.menu || {};
+            const categories = {};
 
-        // Agrupar por categoria
-        Object.entries(menu).forEach(([pratoId, prato]) => {
-            const cat = prato.category || 'Outros';
-            if (!categories[cat]) categories[cat] = [];
-            categories[cat].push({ id: pratoId, ...prato });
-        });
-
-        // Criar HTML por categoria
-        Object.entries(categories).forEach(([category, items]) => {
-            const catTitle = document.createElement('h3');
-            catTitle.textContent = category;
-            menuListEl.appendChild(catTitle);
-
-            const catList = document.createElement('div');
-            catList.className = 'category-list';
-
-            items.forEach(item => {
-                const row = document.createElement('div');
-                row.className = 'menu-item';
-                row.innerHTML = `
-          <div class="item-info">
-            <strong>${item.name}</strong>
-            <div class="item-price">${item.price.toFixed(2).replace('.', ',')} €</div>
-          </div>
-          <div class="item-controls">
-            <button class="btn-remove" data-id="${item.id}">-</button>
-            <span class="item-qty" data-id="${item.id}">0</span>
-            <button class="btn-add" data-id="${item.id}">+</button>
-          </div>
-        `;
-                catList.appendChild(row);
+            // Agrupar por categoria
+            Object.entries(menu).forEach(([pratoId, prato]) => {
+                const cat = prato.category || 'Outros';
+                if (!categories[cat]) categories[cat] = [];
+                categories[cat].push({ id: pratoId, ...prato });
             });
 
-            menuListEl.appendChild(catList);
-        });
+            // Criar HTML por categoria
+            Object.entries(categories).forEach(([category, items]) => {
+                const catTitle = document.createElement('h3');
+                catTitle.textContent = category;
+                menuListEl.appendChild(catTitle);
 
-        // Adicionar eventos aos botões
-        menuListEl.addEventListener('click', e => {
-            const btn = e.target;
-            if (!btn.classList.contains('btn-add') && !btn.classList.contains('btn-remove')) return;
+                const catList = document.createElement('div');
+                catList.className = 'category-list';
 
-            const pratoId = btn.dataset.id;
-            const isAdd = btn.classList.contains('btn-add');
-
-            // Encontrar o prato no menu
-            let prato = null;
-            Object.entries(menu).forEach(([id, p]) => {
-                if (id === pratoId) prato = { id, ...p };
-            });
-            if (!prato) return;
-
-            // Atualizar carrinho
-            if (!cart[pratoId]) cart[pratoId] = { ...prato, quantity: 0 };
-            cart[pratoId].quantity += isAdd ? 1 : -1;
-            if (cart[pratoId].quantity <= 0) delete cart[pratoId];
-
-            // Atualizar UI
-            updateCartUI();
-            updateQuantitiesUI();
-        });
-
-        // Botão enviar pedido
-        document.getElementById('send-order').addEventListener('click', () => {
-            const items = Object.values(cart);
-            if (items.length === 0) {
-                alert('O carrinho está vazio.');
-                return;
-            }
-
-            const order = {
-                restaurantId,
-                tableNumber: prompt('Número da mesa (ou deixa em branco para balcão):') || 'Balcão',
-                items: items.map(item => ({
-                    pratoId: item.id,
-                    name: item.name,
-                    price: item.price,
-                    quantity: item.quantity
-                })),
-                total: items.reduce((sum, item) => sum + item.price * item.quantity, 0),
-                status: 'new',
-                createdAt: firebase.database.ServerValue.TIMESTAMP
-            };
-
-            db.ref('orders').push(order)
-                .then(() => {
-                    alert('Pedido enviado com sucesso!');
-                    cart = {};
-                    updateCartUI();
-                    updateQuantitiesUI();
-                })
-                .catch(err => {
-                    alert('Erro ao enviar pedido: ' + err.message);
-                    console.error(err);
+                items.forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = 'menu-item';
+                    row.innerHTML = `
+            <div class="item-info">
+              <strong>${item.name}</strong>
+              <div class="item-price">${item.price.toFixed(2).replace('.', ',')} €</div>
+            </div>
+            <div class="item-controls">
+              <button class="btn-remove" data-id="${item.id}">-</button>
+              <span class="item-qty" data-id="${item.id}">0</span>
+              <button class="btn-add" data-id="${item.id}">+</button>
+            </div>
+          `;
+                    catList.appendChild(row);
                 });
-        });
+
+                menuListEl.appendChild(catList);
+            });
+
+            // Adicionar eventos aos botões
+            menuListEl.addEventListener('click', e => {
+                const btn = e.target;
+                if (!btn.classList.contains('btn-add') && !btn.classList.contains('btn-remove')) return;
+
+                const pratoId = btn.dataset.id;
+                const isAdd = btn.classList.contains('btn-add');
+
+                // Encontrar o prato no menu
+                let prato = null;
+                Object.entries(menu).forEach(([id, p]) => {
+                    if (id === pratoId) prato = { id, ...p };
+                });
+                if (!prato) return;
+
+                // Atualizar carrinho
+                if (!cart[pratoId]) cart[pratoId] = { ...prato, quantity: 0 };
+                cart[pratoId].quantity += isAdd ? 1 : -1;
+                if (cart[pratoId].quantity <= 0) delete cart[pratoId];
+
+                // Atualizar UI
+                updateCartUI();
+                updateQuantitiesUI();
+            });
+
+            // Botão enviar pedido
+            const sendOrderBtn = document.getElementById('send-order');
+            if (sendOrderBtn) {
+                sendOrderBtn.addEventListener('click', () => {
+                    const items = Object.values(cart);
+                    if (items.length === 0) {
+                        alert('O carrinho está vazio.');
+                        return;
+                    }
+
+                    const order = {
+                        restaurantId,
+                        tableNumber: prompt('Número da mesa (ou deixa em branco para balcão):') || 'Balcão',
+                        items: items.map(item => ({
+                            pratoId: item.id,
+                            name: item.name,
+                            price: item.price,
+                            quantity: item.quantity
+                        })),
+                        total: items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+                        status: 'new',
+                        createdAt: firebase.database.ServerValue.TIMESTAMP
+                    };
+
+                    db.ref('orders').push(order)
+                        .then(() => {
+                            alert('Pedido enviado com sucesso!');
+                            cart = {};
+                            updateCartUI();
+                            updateQuantitiesUI();
+                        })
+                        .catch(err => {
+                            alert('Erro ao enviar pedido: ' + err.message);
+                            console.error(err);
+                        });
+                });
+            }
+        }
     });
 });
 
@@ -153,6 +173,8 @@ window.addEventListener('DOMContentLoaded', () => {
 function updateCartUI() {
     const cartListEl = document.getElementById('cart-list');
     const cartTotalEl = document.getElementById('cart-total');
+
+    if (!cartListEl || !cartTotalEl) return;
 
     const items = Object.values(cart);
     if (items.length === 0) {
@@ -186,7 +208,6 @@ function updateQuantitiesUI() {
         el.textContent = qty;
     });
 }
-
 
 // === Lógica da cozinha (cozinha.html) ===
 
@@ -277,6 +298,7 @@ function translateStatus(status) {
         default: return status;
     }
 }
+
 // === Lógica do admin (admin.html) ===
 
 const ADMIN_PASSWORD = 'admin123'; // podes mudar esta password
@@ -296,9 +318,9 @@ let allOrders = [];
 let allRestaurants = [];
 
 // Verificar se já há sessão (simples, por enquanto)
-const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
+const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
 
-if (isLoggedIn) {
+if (isAdminLoggedIn) {
     showAdminContent();
 }
 
@@ -430,83 +452,5 @@ function renderOrdersHistory() {
     `;
 
         ordersHistoryEl.appendChild(orderEl);
-    });
-}
-
-// Verificar se já há sessão (opcional, simples, só por enquanto)
-const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
-
-if (isLoggedIn) {
-    showAdminContent();
-}
-
-if (btnLogin) {
-    btnLogin.addEventListener('click', () => {
-        const pwd = passwordInput.value.trim();
-        if (pwd === ADMIN_PASSWORD) {
-            sessionStorage.setItem('adminLoggedIn', 'true');
-            loginError.textContent = '';
-            showAdminContent();
-        } else {
-            loginError.textContent = 'Password incorreta.';
-        }
-    });
-}
-
-function showAdminContent() {
-    if (loginSection) loginSection.style.display = 'none';
-    if (adminContent) adminContent.style.display = 'block';
-    loadOrdersHistory();
-}
-
-function loadOrdersHistory() {
-    if (!ordersHistoryEl) return;
-
-    const db = firebase.database();
-    ordersHistoryEl.innerHTML = 'A carregar histórico...';
-
-    db.ref('orders').on('value', snapshot => {
-        ordersHistoryEl.innerHTML = '';
-
-        const orders = [];
-        snapshot.forEach(child => {
-            orders.push({ id: child.key, ...child.val() });
-        });
-
-        if (orders.length === 0) {
-            ordersHistoryEl.textContent = 'Sem pedidos registados.';
-            return;
-        }
-
-        // Ordenar: mais recentes primeiro
-        orders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-
-        orders.forEach(order => {
-            const orderEl = document.createElement('div');
-            orderEl.className = 'order-card';
-
-            const date = order.createdAt
-                ? new Date(order.createdAt).toLocaleString('pt-PT')
-                : 'Data desconhecida';
-
-            orderEl.innerHTML = `
-        <div class="order-header">
-          <strong>Mesa ${order.tableNumber || 'N/A'} – ${date}</strong>
-          <span class="order-status status-${order.status}">${translateStatus(order.status)}</span>
-        </div>
-        <div class="order-items">
-          ${order.items.map(item => `
-            <div>
-              ${item.name} × ${item.quantity}
-            </div>
-          `).join('')}
-        </div>
-        <div class="order-total">
-          Total: ${order.total.toFixed(2).replace('.', ',')} €
-        </div>
-      `;
-
-            ordersHistoryEl.appendChild(orderEl);
-        });
     });
 }
