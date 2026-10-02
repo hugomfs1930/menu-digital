@@ -503,6 +503,7 @@ const adminContent = document.getElementById('admin-content');
 const passwordInput = document.getElementById('admin-password');
 const btnLogin = document.getElementById('btn-login');
 const btnLogout = document.getElementById('btn-logout');
+const btnExportCsv = document.getElementById('btn-export-csv');
 const loginError = document.getElementById('login-error');
 const ordersHistoryEl = document.getElementById('orders-history');
 
@@ -536,6 +537,12 @@ if (btnLogout) {
     btnLogout.addEventListener('click', () => {
         sessionStorage.removeItem('adminLoggedIn');
         location.reload();
+    });
+}
+
+if (btnExportCsv) {
+    btnExportCsv.addEventListener('click', () => {
+        exportOrdersToCSV();
     });
 }
 
@@ -648,4 +655,80 @@ function renderOrdersHistory() {
 
         ordersHistoryEl.appendChild(orderEl);
     });
+}
+
+// Exportar pedidos para CSV
+function exportOrdersToCSV() {
+    const restaurantFilter = filterRestaurantEl ? filterRestaurantEl.value : '';
+    const statusFilter = filterStatusEl ? filterStatusEl.value : '';
+
+    let filtered = [...allOrders];
+
+    // Filtro por restaurante
+    if (restaurantFilter) {
+        filtered = filtered.filter(o => o.restaurantId === restaurantFilter);
+    }
+
+    // Filtro por estado
+    if (statusFilter) {
+        filtered = filtered.filter(o => o.status === statusFilter);
+    }
+
+    // Ordenar: mais recentes primeiro
+    filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+    if (filtered.length === 0) {
+        alert('Sem pedidos para exportar com estes filtros.');
+        return;
+    }
+
+    // Cabeçalhos CSV
+    const headers = [
+        'ID',
+        'Restaurante',
+        'Mesa',
+        'Data',
+        'Estado',
+        'Itens',
+        'Total (€)'
+    ];
+
+    // Linhas CSV
+    const rows = filtered.map(order => {
+        const restaurant = allRestaurants.find(r => r.id === order.restaurantId);
+        const restaurantLabel = restaurant
+            ? (restaurant.name || restaurant.slug || order.restaurantId)
+            : order.restaurantId || '';
+
+        const date = order.createdAt
+            ? new Date(order.createdAt).toLocaleString('pt-PT')
+            : '';
+
+        const itemsText = order.items
+            .map(item => `${item.name} × ${item.quantity}`)
+            .join('; ');
+
+        return [
+            order.id,
+            restaurantLabel,
+            order.tableNumber || '',
+            date,
+            translateStatus(order.status),
+            `"${itemsText}"`, // aspas para proteger vírgulas
+            order.total.toFixed(2).replace('.', ',')
+        ].join(',');
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+
+    // Criar blob e download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'pedidos.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 }

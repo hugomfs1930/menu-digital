@@ -27,9 +27,13 @@
 
         <!-- Conteúdo do admin (só visível após login) -->
         <section id="admin-content" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
                 <h2 style="margin: 0;">Histórico de pedidos</h2>
-                <button id="btn-logout" style="padding: 0.5rem 1rem;">Sair</button>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <button id="btn-export-csv" style="padding: 0.5rem 1rem;">Exportar CSV</button>
+                    <button id="btn-logout" style="padding: 0.5rem 1rem;">Sair</button>
+                </div>
             </div>
 
             <p>Filtros:</p>
