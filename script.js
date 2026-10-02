@@ -285,8 +285,153 @@ const loginSection = document.getElementById('login-section');
 const adminContent = document.getElementById('admin-content');
 const passwordInput = document.getElementById('admin-password');
 const btnLogin = document.getElementById('btn-login');
+const btnLogout = document.getElementById('btn-logout');
 const loginError = document.getElementById('login-error');
 const ordersHistoryEl = document.getElementById('orders-history');
+
+const filterRestaurantEl = document.getElementById('filter-restaurant');
+const filterStatusEl = document.getElementById('filter-status');
+
+let allOrders = [];
+let allRestaurants = [];
+
+// Verificar se já há sessão (simples, por enquanto)
+const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
+
+if (isLoggedIn) {
+    showAdminContent();
+}
+
+if (btnLogin) {
+    btnLogin.addEventListener('click', () => {
+        const pwd = passwordInput.value.trim();
+        if (pwd === ADMIN_PASSWORD) {
+            sessionStorage.setItem('adminLoggedIn', 'true');
+            loginError.textContent = '';
+            showAdminContent();
+        } else {
+            loginError.textContent = 'Password incorreta.';
+        }
+    });
+}
+
+if (btnLogout) {
+    btnLogout.addEventListener('click', () => {
+        sessionStorage.removeItem('adminLoggedIn');
+        location.reload();
+    });
+}
+
+if (filterRestaurantEl) {
+    filterRestaurantEl.addEventListener('change', renderOrdersHistory);
+}
+
+if (filterStatusEl) {
+    filterStatusEl.addEventListener('change', renderOrdersHistory);
+}
+
+function showAdminContent() {
+    if (loginSection) loginSection.style.display = 'none';
+    if (adminContent) adminContent.style.display = 'block';
+    loadAdminData();
+}
+
+function loadAdminData() {
+    const db = firebase.database();
+
+    // Carregar restaurantes
+    db.ref('restaurants').once('value', snapshot => {
+        allRestaurants = [];
+        snapshot.forEach(child => {
+            const data = child.val();
+            allRestaurants.push({ id: child.key, ...data });
+        });
+
+        // Preencher select de restaurantes
+        if (filterRestaurantEl) {
+            filterRestaurantEl.innerHTML = '<option value="">Todos os restaurantes</option>';
+            allRestaurants.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r.id;
+                opt.textContent = r.name || r.slug || r.id;
+                filterRestaurantEl.appendChild(opt);
+            });
+        }
+
+        // Carregar pedidos
+        db.ref('orders').on('value', snapshot => {
+            allOrders = [];
+            snapshot.forEach(child => {
+                allOrders.push({ id: child.key, ...child.val() });
+            });
+
+            renderOrdersHistory();
+        });
+    });
+}
+
+function renderOrdersHistory() {
+    if (!ordersHistoryEl) return;
+
+    const restaurantFilter = filterRestaurantEl ? filterRestaurantEl.value : '';
+    const statusFilter = filterStatusEl ? filterStatusEl.value : '';
+
+    let filtered = [...allOrders];
+
+    // Filtro por restaurante
+    if (restaurantFilter) {
+        filtered = filtered.filter(o => o.restaurantId === restaurantFilter);
+    }
+
+    // Filtro por estado
+    if (statusFilter) {
+        filtered = filtered.filter(o => o.status === statusFilter);
+    }
+
+    // Ordenar: mais recentes primeiro
+    filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+    ordersHistoryEl.innerHTML = '';
+
+    if (filtered.length === 0) {
+        ordersHistoryEl.textContent = 'Sem pedidos com estes filtros.';
+        return;
+    }
+
+    filtered.forEach(order => {
+        const orderEl = document.createElement('div');
+        orderEl.className = 'order-card';
+
+        const date = order.createdAt
+            ? new Date(order.createdAt).toLocaleString('pt-PT')
+            : 'Data desconhecida';
+
+        // Tentar mostrar nome do restaurante
+        const restaurant = allRestaurants.find(r => r.id === order.restaurantId);
+        const restaurantLabel = restaurant
+            ? (restaurant.name || restaurant.slug || order.restaurantId)
+            : order.restaurantId || 'Restaurante';
+
+        orderEl.innerHTML = `
+      <div class="order-header">
+        <strong>${restaurantLabel} – Mesa ${order.tableNumber || 'N/A'} – ${date}</strong>
+        <span class="order-status status-${order.status}">${translateStatus(order.status)}</span>
+      </div>
+      <div class="order-items">
+        ${order.items.map(item => `
+          <div>
+            ${item.name} × ${item.quantity}
+          </div>
+        `).join('')}
+      </div>
+      <div class="order-total">
+        Total: ${order.total.toFixed(2).replace('.', ',')} €
+      </div>
+    `;
+
+        ordersHistoryEl.appendChild(orderEl);
+    });
+}
 
 // Verificar se já há sessão (opcional, simples, só por enquanto)
 const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';

@@ -27,8 +27,30 @@
 
         <!-- Conteúdo do admin (só visível após login) -->
         <section id="admin-content" style="display: none;">
-            <h2>Histórico de pedidos</h2>
-            <p>Abaixo estão todos os pedidos registados no sistema.</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2 style="margin: 0;">Histórico de pedidos</h2>
+                <button id="btn-logout" style="padding: 0.5rem 1rem;">Sair</button>
+            </div>
+
+            <p>Filtros:</p>
+
+            <!-- Filtros -->
+            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
+                <!-- Filtro por restaurante -->
+                <select id="filter-restaurant" style="padding: 0.5rem;">
+                    <option value="">Todos os restaurantes</option>
+                    <!-- Opções preenchidas via JS -->
+                </select>
+
+                <!-- Filtro por estado -->
+                <select id="filter-status" style="padding: 0.5rem;">
+                    <option value="">Todos os estados</option>
+                    <option value="new">Novos</option>
+                    <option value="preparing">Em preparação</option>
+                    <option value="ready">Prontos</option>
+                    <option value="completed">Concluídos</option>
+                </select>
+            </div>
 
             <div id="orders-history" class="orders-container">
                 <!-- Pedidos carregados via JS -->
