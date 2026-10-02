@@ -382,6 +382,9 @@ if (document.getElementById('orders-list')) {
               Marcar como concluído
             </button>
           ` : ''}
+          <button class="btn-print" data-id="${order.id}" style="margin-left: 0.5rem;">
+            Imprimir comanda
+          </button>
         </div>
       `;
             ordersListEl.appendChild(orderEl);
@@ -400,6 +403,83 @@ if (document.getElementById('orders-list')) {
                     });
             });
         });
+
+        // Adicionar eventos aos botões de imprimir
+        ordersListEl.querySelectorAll('.btn-print').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const orderId = btn.dataset.id;
+                printOrder(orderId);
+            });
+        });
+    });
+}
+
+// Função para imprimir comanda de um pedido
+function printOrder(orderId) {
+    const db = firebase.database();
+
+    db.ref('orders/' + orderId).once('value', snapshot => {
+        const order = snapshot.val();
+        if (!order) {
+            alert('Pedido não encontrado.');
+            return;
+        }
+
+        const date = order.createdAt
+            ? new Date(order.createdAt).toLocaleString('pt-PT')
+            : '';
+
+        const itemsText = order.items
+            .map(item => `  • ${item.name} × ${item.quantity}`)
+            .join('\n');
+
+        const printContent = `
+      <html>
+      <head>
+        <title>Comanda – Mesa ${order.tableNumber || 'N/A'}</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+          }
+          h1 {
+            font-size: 18px;
+            margin-bottom: 5px;
+          }
+          p {
+            margin: 4px 0;
+            font-size: 14px;
+          }
+          .items {
+            margin-top: 10px;
+            white-space: pre-line;
+            font-size: 14px;
+          }
+          .total {
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 14px;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Comanda – Mesa ${order.tableNumber || 'N/A'}</h1>
+        <p>Data: ${date}</p>
+        <p>Estado: ${translateStatus(order.status)}</p>
+        <div class="items">${itemsText}</div>
+        <div class="total">Total: ${order.total.toFixed(2).replace('.', ',')} €</div>
+      </body>
+      </html>
+    `;
+
+        const printWindow = window.open('', '', 'width=600,height=400');
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+        }, 250);
     });
 }
 
