@@ -10,21 +10,29 @@
 
 <body>
     <header>
-        <h1>Menu</h1>
-        <p id="restaurant-name">A carregar restaurante...</p>
+        <h1 id="restaurant-name">A carregar...</h1>
+        <p>Escolhe os teus pratos</p>
     </header>
 
     <main>
-        <section id="menu-section">
-            <h2>Pratos</h2>
-            <div id="menu-list">A carregar menu...</div>
+        <!-- Filtros por categoria -->
+        <section id="category-filters" style="margin-bottom: 1.5rem;">
+            <!-- Botões inseridos via JS -->
         </section>
 
+        <!-- Lista de pratos -->
+        <section id="menu-section">
+            <div id="menu-list"></div>
+        </section>
+
+        <!-- Carrinho -->
         <section id="cart-section">
-            <h2>Seu pedido</h2>
+            <h2>O teu pedido</h2>
             <div id="cart-list">O carrinho está vazio.</div>
-            <p>Total: <strong id="cart-total">0,00 €</strong></p>
-            <button id="send-order" type="button">Enviar pedido</button>
+            <div style="margin-top: 0.5rem; font-weight: 600;">
+                Total: <span id="cart-total">0,00 €</span>
+            </div>
+            <button id="send-order">Enviar pedido</button>
         </section>
     </main>
 

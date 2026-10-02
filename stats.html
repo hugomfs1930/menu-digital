@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Estatísticas – Menu</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .stat-card h3 {
+            margin: 0 0 0.5rem;
+            font-size: 0.95rem;
+            color: #6b7280;
+        }
+
+        .stat-card .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .chart-section {
+            margin-bottom: 2rem;
+        }
+
+        .chart-section h2 {
+            margin-bottom: 0.75rem;
+        }
+
+        .bar-chart {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .bar-row {
+            display: grid;
+            grid-template-columns: 1fr 100px;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .bar-label {
+            font-size: 0.9rem;
+            color: #374151;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .bar-container {
+            background: #e5e7eb;
+            border-radius: 6px;
+            height: 24px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: #2563eb;
+            border-radius: 6px;
+        }
+
+        .bar-value {
+            text-align: right;
+            font-size: 0.85rem;
+            color: #111827;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Estatísticas</h1>
+        <p>Resumo de pedidos e vendas</p>
+    </header>
+
+    <main>
+        <!-- Cards de resumo -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <h3>Total de pedidos</h3>
+                <div class="value" id="stat-total-orders">–</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total faturado</h3>
+                <div class="value" id="stat-total-revenue">–</div>
+            </div>
+            <div class="stat-card">
+                <h3>Ticket médio</h3>
+                <div class="value" id="stat-average-ticket">–</div>
+            </div>
+        </section>
+
+        <!-- Pedidos por dia -->
+        <section class="chart-section">
+            <h2>Pedidos por dia (últimos 7 dias)</h2>
+            <div id="chart-orders-per-day" class="bar-chart">
+                <!-- Barras geradas via JS -->
+            </div>
+        </section>
+
+        <!-- Pratos mais vendidos -->
+        <section class="chart-section">
+            <h2>Pratos mais vendidos</h2>
+            <div id="chart-top-dishes" class="bar-chart">
+                <!-- Barras geradas via JS -->
+            </div>
+        </section>
+
+        <p style="margin-top: 2rem;">
+            <a href="admin.html">Voltar ao backoffice</a>
+        </p>
+    </main>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

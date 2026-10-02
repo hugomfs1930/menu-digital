@@ -732,3 +732,155 @@ function exportOrdersToCSV() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 }
+// === Lógica da página de estatísticas (stats.html) ===
+
+if (document.getElementById('stat-total-orders')) {
+    const db = firebase.database();
+
+    db.ref('orders').once('value', snapshot => {
+        const orders = [];
+        snapshot.forEach(child => {
+            orders.push({ id: child.key, ...child.val() });
+        });
+
+        if (orders.length === 0) {
+            document.getElementById('stat-total-orders').textContent = '0';
+            document.getElementById('stat-total-revenue').textContent = '0,00 €';
+            document.getElementById('stat-average-ticket').textContent = '0,00 €';
+            return;
+        }
+
+        // Total de pedidos
+        const totalOrders = orders.length;
+        document.getElementById('stat-total-orders').textContent = totalOrders;
+
+        // Total faturado
+        const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+        document.getElementById('stat-total-revenue').textContent =
+            totalRevenue.toFixed(2).replace('.', ',') + ' €';
+
+        // Ticket médio
+        const averageTicket = totalRevenue / totalOrders;
+        document.getElementById('stat-average-ticket').textContent =
+            averageTicket.toFixed(2).replace('.', ',') + ' €';
+
+        // Pedidos por dia (últimos 7 dias)
+        renderOrdersPerDay(orders);
+
+        // Pratos mais vendidos
+        renderTopDishes(orders);
+    });
+}
+
+function renderOrdersPerDay(orders) {
+    const chartEl = document.getElementById('chart-orders-per-day');
+    if (!chartEl) return;
+
+    // Agrupar por dia (YYYY-MM-DD)
+    const byDay = {};
+    orders.forEach(order => {
+        const date = order.createdAt ? new Date(order.createdAt) : null;
+        if (!date) return;
+        const dayKey = date.toISOString().slice(0, 10); // "2026-10-02"
+        byDay[dayKey] = (byDay[dayKey] || 0) + 1;
+    });
+
+    // Últimos 7 dias
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dayKey = d.toISOString().slice(0, 10);
+        const label = d.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' });
+        days.push({ dayKey, label, count: byDay[dayKey] || 0 });
+    }
+
+    const maxCount = Math.max(1, ...days.map(d => d.count));
+
+    chartEl.innerHTML = '';
+    days.forEach(day => {
+        const row = document.createElement('div');
+        row.className = 'bar-row';
+
+        const labelEl = document.createElement('div');
+        labelEl.className = 'bar-label';
+        labelEl.textContent = day.label;
+
+        const barWrapper = document.createElement('div');
+        barWrapper.className = 'bar-container';
+
+        const barFill = document.createElement('div');
+        barFill.className = 'bar-fill';
+        const widthPercent = (day.count / maxCount) * 100;
+        barFill.style.width = widthPercent + '%';
+
+        barWrapper.appendChild(barFill);
+
+        const valueEl = document.createElement('div');
+        valueEl.className = 'bar-value';
+        valueEl.textContent = day.count;
+
+        row.appendChild(labelEl);
+        row.appendChild(barWrapper);
+        row.appendChild(valueEl);
+
+        chartEl.appendChild(row);
+    });
+}
+
+function renderTopDishes(orders) {
+    const chartEl = document.getElementById('chart-top-dishes');
+    if (!chartEl) return;
+
+    // Contar quantidade de cada prato
+    const dishCount = {};
+    orders.forEach(order => {
+        (order.items || []).forEach(item => {
+            const name = item.name || 'Prato desconhecido';
+            dishCount[name] = (dishCount[name] || 0) + (item.quantity || 0);
+        });
+    });
+
+    // Transformar em array e ordenar
+    const dishes = Object.entries(dishCount)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5); // top 5
+
+    if (dishes.length === 0) {
+        chartEl.textContent = 'Sem dados de pratos.';
+        return;
+    }
+
+    const maxCount = Math.max(1, ...dishes.map(d => d.count));
+
+    chartEl.innerHTML = '';
+    dishes.forEach(dish => {
+        const row = document.createElement('div');
+        row.className = 'bar-row';
+
+        const labelEl = document.createElement('div');
+        labelEl.className = 'bar-label';
+        labelEl.textContent = dish.name;
+
+        const barWrapper = document.createElement('div');
+        barWrapper.className = 'bar-container';
+
+        const barFill = document.createElement('div');
+        barFill.className = 'bar-fill';
+        const widthPercent = (dish.count / maxCount) * 100;
+        barFill.style.width = widthPercent + '%';
+
+        barWrapper.appendChild(barFill);
+
+        const valueEl = document.createElement('div');
+        valueEl.className = 'bar-value';
+        valueEl.textContent = dish.count;
+
+        row.appendChild(labelEl);
+        row.appendChild(barWrapper);
+        row.appendChild(valueEl);
+
+        chartEl.appendChild(row);
+    });
+}
