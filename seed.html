@@ -3,13 +3,23 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Seed – Dados de exemplo</title>
+    <title>Seed – Menu Digital</title>
+    <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-    <h1>Seed – Dados de exemplo</h1>
-    <p>A carregar...</p>
+    <header>
+        <h1>Seed – Criar dados de exemplo</h1>
+    </header>
+
+    <main>
+        <p>Este script cria restaurantes e pratos de exemplo no Firebase.</p>
+        <button id="run-seed"
+            style="padding: 0.6rem 1.2rem; background: #2563eb; color: #fff; border: none; border-radius: 8px; cursor: pointer;">
+            Correr seed
+        </button>
+        <p id="seed-result" style="margin-top: 1rem;"></p>
+    </main>
 
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
