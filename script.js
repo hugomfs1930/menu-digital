@@ -320,12 +320,40 @@ if (document.getElementById('orders-list')) {
         // Ordenar: mais recentes primeiro
         orders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
+        const now = Date.now();
+
         orders.forEach(order => {
             const orderEl = document.createElement('div');
             orderEl.className = 'order-card';
+
+            // Calcular tempo desde o pedido
+            const createdTime = order.createdAt || now;
+            const diffMs = now - createdTime;
+            const diffMin = Math.floor(diffMs / 60000);
+
+            // Classe para pedidos antigos
+            let ageClass = '';
+            if (diffMin >= 20) {
+                ageClass = 'order-old-20';
+            } else if (diffMin >= 10) {
+                ageClass = 'order-old-10';
+            }
+
+            if (ageClass) {
+                orderEl.classList.add(ageClass);
+            }
+
+            // Texto do tempo
+            let timeText = '';
+            if (diffMin < 1) {
+                timeText = 'há < 1 min';
+            } else {
+                timeText = `há ${diffMin} min`;
+            }
+
             orderEl.innerHTML = `
         <div class="order-header">
-          <strong>Mesa ${order.tableNumber || 'N/A'}</strong>
+          <strong>Mesa ${order.tableNumber || 'N/A'} – ${timeText}</strong>
           <span class="order-status status-${order.status}">${translateStatus(order.status)}</span>
         </div>
         <div class="order-items">

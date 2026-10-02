@@ -292,3 +292,20 @@ ul {
         justify-content: flex-start;
     }
 }
+
+/* Menu com imagens */
+#category-filters button {
+    padding: 0.45rem 0.85rem;
+    background: #e5e7eb;
+    color: #111827;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: background 0.15s ease;
+}
+
+#category-filters button:hover {
+    background: #d1d5db;
+}
