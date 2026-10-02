@@ -14,16 +14,16 @@ window.addEventListener('DOMContentLoaded', () => {
     const db = firebase.database();
     const restaurantSlug = getQueryParam('restaurant');
 
+    const restaurantNameEl = document.getElementById('restaurant-name');
+    const menuListEl = document.getElementById('menu-list');
+    const categoryFiltersEl = document.getElementById('category-filters');
+
     if (!restaurantSlug) {
-        const restaurantNameEl = document.getElementById('restaurant-name');
         if (restaurantNameEl) {
-            restaurantNameEl.textContent =
-                'Nenhum restaurante especificado (usa ?restaurant=...)';
+            restaurantNameEl.textContent = 'Nenhum restaurante especificado (usa ?restaurant=...)';
         }
-        const menuListEl = document.getElementById('menu-list');
         if (menuListEl) {
-            menuListEl.textContent =
-                'Exemplo: menu.html?restaurant=restaurante-exemplo';
+            menuListEl.textContent = 'Exemplo: menu.html?restaurant=restaurante-exemplo';
         }
         return;
     }
@@ -42,11 +42,9 @@ window.addEventListener('DOMContentLoaded', () => {
         });
 
         if (!restaurant) {
-            const restaurantNameEl = document.getElementById('restaurant-name');
             if (restaurantNameEl) {
                 restaurantNameEl.textContent = 'Restaurante não encontrado';
             }
-            const menuListEl = document.getElementById('menu-list');
             if (menuListEl) {
                 menuListEl.textContent = 'Verifica o parâmetro "restaurant" no URL.';
             }
@@ -54,28 +52,59 @@ window.addEventListener('DOMContentLoaded', () => {
         }
 
         // Mostrar nome do restaurante
-        const restaurantNameEl = document.getElementById('restaurant-name');
         if (restaurantNameEl) {
             restaurantNameEl.textContent = restaurant.name;
         }
 
-        // Mostrar menu
-        const menuListEl = document.getElementById('menu-list');
-        if (menuListEl) {
-            menuListEl.innerHTML = '';
+        if (!menuListEl) return;
 
-            const menu = restaurant.menu || {};
-            const categories = {};
+        const menu = restaurant.menu || {};
+        const categories = {};
 
-            // Agrupar por categoria
-            Object.entries(menu).forEach(([pratoId, prato]) => {
-                const cat = prato.category || 'Outros';
-                if (!categories[cat]) categories[cat] = [];
-                categories[cat].push({ id: pratoId, ...prato });
+        // Agrupar por categoria
+        Object.entries(menu).forEach(([pratoId, prato]) => {
+            const cat = prato.category || 'Outros';
+            if (!categories[cat]) categories[cat] = [];
+            categories[cat].push({ id: pratoId, ...prato });
+        });
+
+        // Criar botões de filtro por categoria
+        if (categoryFiltersEl) {
+            categoryFiltersEl.innerHTML = '';
+            const allButton = document.createElement('button');
+            allButton.textContent = 'Todos';
+            allButton.className = 'btn-status';
+            allButton.style.marginRight = '0.5rem';
+            allButton.dataset.category = '';
+            categoryFiltersEl.appendChild(allButton);
+
+            Object.keys(categories).forEach(cat => {
+                const btn = document.createElement('button');
+                btn.textContent = cat;
+                btn.className = 'btn-status';
+                btn.style.marginRight = '0.5rem';
+                btn.dataset.category = cat;
+                categoryFiltersEl.appendChild(btn);
             });
 
-            // Criar HTML por categoria
-            Object.entries(categories).forEach(([category, items]) => {
+            let activeCategory = '';
+
+            categoryFiltersEl.addEventListener('click', e => {
+                if (!e.target.tagName || e.target.tagName !== 'BUTTON') return;
+                activeCategory = e.target.dataset.category || '';
+                renderMenu(activeCategory);
+            });
+        }
+
+        // Função para renderizar o menu
+        function renderMenu(activeCategory) {
+            menuListEl.innerHTML = '';
+
+            const catsToRender = activeCategory
+                ? { [activeCategory]: categories[activeCategory] }
+                : categories;
+
+            Object.entries(catsToRender).forEach(([category, items]) => {
                 const catTitle = document.createElement('h3');
                 catTitle.textContent = category;
                 menuListEl.appendChild(catTitle);
@@ -86,17 +115,72 @@ window.addEventListener('DOMContentLoaded', () => {
                 items.forEach(item => {
                     const row = document.createElement('div');
                     row.className = 'menu-item';
-                    row.innerHTML = `
-            <div class="item-info">
-              <strong>${item.name}</strong>
-              <div class="item-price">${item.price.toFixed(2).replace('.', ',')} €</div>
-            </div>
-            <div class="item-controls">
-              <button class="btn-remove" data-id="${item.id}">-</button>
-              <span class="item-qty" data-id="${item.id}">0</span>
-              <button class="btn-add" data-id="${item.id}">+</button>
-            </div>
-          `;
+                    row.style.display = 'flex';
+                    row.style.gap = '1rem';
+                    row.style.alignItems = 'flex-start';
+
+                    const imageEl = document.createElement('img');
+                    imageEl.src = item.image || 'https://via.placeholder.com/120';
+                    imageEl.alt = item.name;
+                    imageEl.style.width = '80px';
+                    imageEl.style.height = '80px';
+                    imageEl.style.objectFit = 'cover';
+                    imageEl.style.borderRadius = '8px';
+
+                    const infoEl = document.createElement('div');
+                    infoEl.style.flex = '1';
+
+                    const namePriceEl = document.createElement('div');
+                    namePriceEl.style.display = 'flex';
+                    namePriceEl.style.justifyContent = 'space-between';
+                    namePriceEl.style.alignItems = 'center';
+                    namePriceEl.style.marginBottom = '0.25rem';
+
+                    const nameStrong = document.createElement('strong');
+                    nameStrong.textContent = item.name;
+
+                    const priceEl = document.createElement('div');
+                    priceEl.className = 'item-price';
+                    priceEl.textContent = item.price.toFixed(2).replace('.', ',') + ' €';
+
+                    namePriceEl.appendChild(nameStrong);
+                    namePriceEl.appendChild(priceEl);
+
+                    const descEl = document.createElement('div');
+                    descEl.style.fontSize = '0.9rem';
+                    descEl.style.color = '#6b7280';
+                    descEl.style.marginBottom = '0.5rem';
+                    descEl.textContent = item.description || '';
+
+                    const controlsEl = document.createElement('div');
+                    controlsEl.className = 'item-controls';
+
+                    const btnRemove = document.createElement('button');
+                    btnRemove.className = 'btn-remove';
+                    btnRemove.dataset.id = item.id;
+                    btnRemove.textContent = '-';
+
+                    const qtySpan = document.createElement('span');
+                    qtySpan.className = 'item-qty';
+                    qtySpan.dataset.id = item.id;
+                    qtySpan.textContent = '0';
+
+                    const btnAdd = document.createElement('button');
+                    btnAdd.className = 'btn-add';
+                    btnAdd.dataset.id = item.id;
+                    btnAdd.textContent = '+';
+
+                    controlsEl.appendChild(btnRemove);
+                    controlsEl.appendChild(qtySpan);
+                    controlsEl.appendChild(btnAdd);
+
+                    infoEl.appendChild(namePriceEl);
+                    infoEl.appendChild(descEl);
+                    infoEl.appendChild(controlsEl);
+
+                    row.appendChild(imageEl);
+                    row.appendChild(infoEl);
+
                     catList.appendChild(row);
                 });
 
@@ -127,44 +211,47 @@ window.addEventListener('DOMContentLoaded', () => {
                 updateCartUI();
                 updateQuantitiesUI();
             });
+        }
 
-            // Botão enviar pedido
-            const sendOrderBtn = document.getElementById('send-order');
-            if (sendOrderBtn) {
-                sendOrderBtn.addEventListener('click', () => {
-                    const items = Object.values(cart);
-                    if (items.length === 0) {
-                        alert('O carrinho está vazio.');
-                        return;
-                    }
+        // Render inicial
+        renderMenu('');
 
-                    const order = {
-                        restaurantId,
-                        tableNumber: prompt('Número da mesa (ou deixa em branco para balcão):') || 'Balcão',
-                        items: items.map(item => ({
-                            pratoId: item.id,
-                            name: item.name,
-                            price: item.price,
-                            quantity: item.quantity
-                        })),
-                        total: items.reduce((sum, item) => sum + item.price * item.quantity, 0),
-                        status: 'new',
-                        createdAt: firebase.database.ServerValue.TIMESTAMP
-                    };
+        // Botão enviar pedido
+        const sendOrderBtn = document.getElementById('send-order');
+        if (sendOrderBtn) {
+            sendOrderBtn.addEventListener('click', () => {
+                const items = Object.values(cart);
+                if (items.length === 0) {
+                    alert('O carrinho está vazio.');
+                    return;
+                }
 
-                    db.ref('orders').push(order)
-                        .then(() => {
-                            alert('Pedido enviado com sucesso!');
-                            cart = {};
-                            updateCartUI();
-                            updateQuantitiesUI();
-                        })
-                        .catch(err => {
-                            alert('Erro ao enviar pedido: ' + err.message);
-                            console.error(err);
-                        });
-                });
-            }
+                const order = {
+                    restaurantId,
+                    tableNumber: prompt('Número da mesa (ou deixa em branco para balcão):') || 'Balcão',
+                    items: items.map(item => ({
+                        pratoId: item.id,
+                        name: item.name,
+                        price: item.price,
+                        quantity: item.quantity
+                    })),
+                    total: items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+                    status: 'new',
+                    createdAt: firebase.database.ServerValue.TIMESTAMP
+                };
+
+                db.ref('orders').push(order)
+                    .then(() => {
+                        alert('Pedido enviado com sucesso!');
+                        cart = {};
+                        updateCartUI();
+                        updateQuantitiesUI();
+                    })
+                    .catch(err => {
+                        alert('Erro ao enviar pedido: ' + err.message);
+                        console.error(err);
+                    });
+            });
         }
     });
 });
