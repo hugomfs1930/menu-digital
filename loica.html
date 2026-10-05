@@ -3,31 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cozinha – Restaurante Rio</title>
+  <title>Loiça – Contagem</title>
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Fraunces:opsz,wght@9..144,600;700&display=swap" rel="stylesheet" />
 </head>
-<body class="page-kitchen">
+<body>
   <div id="page-banners"></div>
   <header class="site-header">
     <div>
-      <h1>Cozinha</h1>
-      <p>Pedidos em tempo real · cronómetro por etapa</p>
+      <h1>Contagem de loiça</h1>
+      <p>Partidas, perdas e inventário</p>
     </div>
   </header>
   <nav class="staff-nav">
-    <a href="index.html">Menu</a>
-    <a href="cozinha.html" class="active">Cozinha</a>
     <a href="admin.html">Admin</a>
-    <a href="cloud.html">Cloud</a>
-    <a href="stats.html">Stats</a>
+    <a href="ficha.html">Fichas</a>
+    <a href="loica.html" class="active">Loiça</a>
   </nav>
-  <main>
-    <section class="limits-bar" id="stage-limits"></section>
-    <section id="kitchen-section">
-      <h2>Pedidos ativos</h2>
-      <div id="orders-list" class="orders-container"></div>
-    </section>
+  <main id="loica-root">
+    <button type="button" id="btn-add-loica" class="btn-primary">Adicionar tipo</button>
+    <div id="loica-list" class="orders-container" style="margin-top:1rem"></div>
   </main>
   <script src="menu-data.js"></script>
   <script src="store.js"></script>

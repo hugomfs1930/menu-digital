@@ -1,31 +1,35 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
-
 <head>
-    <meta charset="UTF-8" />
-    <title>Seed – Menu Digital</title>
-    <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dados de exemplo (Seed)</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Fraunces:opsz,wght@9..144,600;700&display=swap" rel="stylesheet" />
 </head>
-
 <body>
-    <header>
-        <h1>Seed – Criar dados de exemplo</h1>
-    </header>
-
-    <main>
-        <p>Este script cria restaurantes e pratos de exemplo no Firebase.</p>
-        <button id="run-seed"
-            style="padding: 0.6rem 1.2rem; background: #2563eb; color: #fff; border: none; border-radius: 8px; cursor: pointer;">
-            Correr seed
-        </button>
-        <p id="seed-result" style="margin-top: 1rem;"></p>
-    </main>
-
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="seed.js"></script>
+  <header class="site-header">
+    <div>
+      <h1>Dados de exemplo</h1>
+      <p>Carrega pedidos demo sem apagar dados reais</p>
+    </div>
+  </header>
+  <nav class="staff-nav">
+    <a href="admin.html">Admin</a>
+    <a href="seed.html" class="active">Seed</a>
+  </nav>
+  <main>
+    <section class="card-panel">
+      <p>O seed grava apenas no namespace <code>demo_md_*</code> e ativa o modo demo. Os pedidos reais em <code>md_*</code> mantêm-se intactos.</p>
+      <div class="row wrap">
+        <button id="run-seed" class="btn-primary">Carregar dados de exemplo (seed)</button>
+        <button id="btn-real-mode" class="btn-ghost" type="button">Voltar ao modo real</button>
+      </div>
+      <p id="seed-result" style="margin-top:1rem"></p>
+    </section>
+  </main>
+  <script src="menu-data.js"></script>
+  <script src="store.js"></script>
+  <script src="script.js"></script>
 </body>
-
 </html>

@@ -1,33 +1,44 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Menu Digital – Restaurante</title>
-    <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Menu – Restaurante Rio</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Fraunces:opsz,wght@9..144,600;700&display=swap" rel="stylesheet" />
 </head>
+<body class="page-menu">
+  <div id="page-banners"></div>
+  <header class="site-header">
+    <div>
+      <p class="eyebrow">Ementa digital</p>
+      <h1 id="restaurant-name">Restaurante Rio</h1>
+      <p>Escolhe, adiciona extras e envia o pedido à cozinha</p>
+    </div>
+    <a class="cart-pill" href="#cart-section">Carrinho <span id="cart-count">0</span></a>
+  </header>
 
-<body>
-    <header>
-        <h1>Menu Digital</h1>
-        <p>Ponto de partida do sistema</p>
-    </header>
+  <main>
+    <section id="category-filters" class="filters"></section>
+    <section id="menu-section"><div id="menu-list"></div></section>
+    <section id="cart-section" class="cart-panel">
+      <h2>O teu pedido</h2>
+      <div id="cart-list"><p class="muted">O carrinho está vazio.</p></div>
+      <div class="cart-total-row">Total: <span id="cart-total">0,00 €</span></div>
+      <button id="send-order" class="btn-primary btn-block">Enviar pedido</button>
+    </section>
+  </main>
 
-    <main>
-        <p>Este é o ponto de partida do sistema de menus digitais.</p>
+  <footer class="site-footer">
+    <a href="cozinha.html">Cozinha</a> ·
+    <a href="admin.html">Admin</a> ·
+    <a href="qr.html">QR</a>
+  </footer>
 
-        <h2>Links úteis</h2>
-        <ul>
-            <li><a href="menu.html">Menu para clientes</a></li>
-            <li><a href="cozinha.html">Ecrã da cozinha</a></li>
-            <li><a href="admin.html">Backoffice (URL secreto)</a></li>
-            <li><a href="seed.html">Seed – criar dados de exemplo</a></li>
-            <li><a href="qr.html">QR Code do menu</a></li>
-        </ul>
-    </main>
-
-    <script src="script.js"></script>
+  <script src="menu-data.js"></script>
+  <script src="store.js"></script>
+  <script src="script.js"></script>
 </body>
-
 </html>

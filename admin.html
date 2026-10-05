@@ -1,75 +1,96 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Backoffice – Menu</title>
-    <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin – Restaurante Rio</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Fraunces:opsz,wght@9..144,600;700&display=swap" rel="stylesheet" />
 </head>
-
 <body>
-    <header>
-        <h1>Backoffice</h1>
-        <p>Gestão de restaurantes e histórico de pedidos</p>
-    </header>
+  <div id="page-banners"></div>
+  <header class="site-header">
+    <div>
+      <h1>Backoffice</h1>
+      <p>Pedidos, ementa, faturação e fecho de caixa</p>
+    </div>
+  </header>
+  <nav class="staff-nav">
+    <a href="index.html">Menu</a>
+    <a href="cozinha.html">Cozinha</a>
+    <a href="admin.html" class="active">Admin</a>
+    <a href="cloud.html">Cloud</a>
+    <a href="ficha.html">Fichas</a>
+    <a href="loica.html">Loiça</a>
+    <a href="stats.html">Stats</a>
+    <a href="seed.html">Seed</a>
+  </nav>
+  <main>
+    <section id="login-section" class="card-panel">
+      <h2>Login</h2>
+      <p class="muted">Password de demonstração: <code>admin123</code></p>
+      <div class="row">
+        <input type="password" id="admin-password" placeholder="Password" />
+        <button id="btn-login" class="btn-primary">Entrar</button>
+      </div>
+      <p id="login-error" class="error"></p>
+    </section>
 
-    <main>
-        <!-- Login -->
-        <section id="login-section">
-            <h2>Login</h2>
-            <p>Introduz a password para aceder ao backoffice.</p>
-            <input type="password" id="admin-password" placeholder="Password"
-                style="padding: 0.5rem; width: 200px; margin-right: 0.5rem;" />
-            <button id="btn-login" style="padding: 0.5rem 1rem;">Entrar</button>
-            <p id="login-error" style="color: #b91c1c; margin-top: 0.5rem;"></p>
-        </section>
+    <section id="admin-content" style="display:none">
+      <div class="admin-toolbar">
+        <div class="tabs">
+          <button type="button" class="chip active" data-tab="orders">Pedidos</button>
+          <button type="button" class="chip" data-tab="menu">Gestão de ementa</button>
+          <button type="button" class="chip" data-tab="cash">Fecho de caixa</button>
+        </div>
+        <div class="row">
+          <a href="cloud.html"><button type="button" class="btn-ghost">Monitorização Cloud</button></a>
+          <button id="btn-export-csv" class="btn-ghost">Exportar CSV</button>
+          <button id="btn-logout" class="btn-ghost">Sair</button>
+        </div>
+      </div>
 
-        <!-- Conteúdo do admin (só visível após login) -->
-        <section id="admin-content" style="display: none;">
-            <div
-                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-                <h2 style="margin: 0;">Histórico de pedidos</h2>
-                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                    <a href="stats.html" style="text-decoration: none;">
-                        <button type="button" style="padding: 0.5rem 1rem;">Estatísticas</button>
-                    </a>
-                    <button id="btn-export-csv" style="padding: 0.5rem 1rem;">Exportar CSV</button>
-                    <button id="btn-logout" style="padding: 0.5rem 1rem;">Sair</button>
-                </div>
-            </div>
+      <div id="panel-orders" class="admin-panel">
+        <label>Estado
+          <select id="filter-status">
+            <option value="">Todos</option>
+            <option value="new">Novos</option>
+            <option value="preparing">Em preparação</option>
+            <option value="ready">Prontos</option>
+            <option value="completed">Concluídos</option>
+          </select>
+        </label>
+        <div id="orders-history" class="orders-container"></div>
+      </div>
 
-            <p>Filtros:</p>
+      <div id="panel-menu" class="admin-panel" hidden>
+        <h2>Gestão de ementa</h2>
+        <p class="muted">Marca pratos como indisponíveis quando esgotarem.</p>
+        <div id="menu-admin-list" class="admin-dish-list"></div>
+      </div>
 
-            <!-- Filtros -->
-            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
-                <!-- Filtro por restaurante -->
-                <select id="filter-restaurant" style="padding: 0.5rem;">
-                    <option value="">Todos os restaurantes</option>
-                    <!-- Opções preenchidas via JS -->
-                </select>
-
-                <!-- Filtro por estado -->
-                <select id="filter-status" style="padding: 0.5rem;">
-                    <option value="">Todos os estados</option>
-                    <option value="new">Novos</option>
-                    <option value="preparing">Em preparação</option>
-                    <option value="ready">Prontos</option>
-                    <option value="completed">Concluídos</option>
-                </select>
-            </div>
-
-            <div id="orders-history" class="orders-container">
-                <!-- Pedidos carregados via JS -->
-            </div>
-        </section>
-    </main>
-
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="script.js"></script>
+      <div id="panel-cash" class="admin-panel" hidden>
+        <h2>Fecho de caixa</h2>
+        <div class="row wrap">
+          <label>Data <input type="date" id="cash-date" /></label>
+          <label>Turno
+            <select id="cash-shift">
+              <option value="manha">Manhã</option>
+              <option value="tarde" selected>Tarde</option>
+              <option value="noite">Noite</option>
+            </select>
+          </label>
+          <label>Dinheiro contado (€) <input type="number" id="cash-counted" step="0.01" value="0" /></label>
+          <button type="button" id="btn-close-shift" class="btn-primary">Fechar turno</button>
+        </div>
+        <div id="cash-summary"></div>
+        <h3>Histórico de fechos</h3>
+        <div id="cash-history"></div>
+      </div>
+    </section>
+  </main>
+  <script src="menu-data.js"></script>
+  <script src="store.js"></script>
+  <script src="script.js"></script>
 </body>
-
 </html>

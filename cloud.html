@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monitorização Cloud – Rio</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Fraunces:opsz,wght@9..144,600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div id="page-banners"></div>
+  <header class="site-header">
+    <div>
+      <h1>Monitorização Cloud</h1>
+      <p>Visão do dono · estado do restaurante em quase tempo real</p>
+    </div>
+  </header>
+  <nav class="staff-nav">
+    <a href="admin.html">Admin</a>
+    <a href="cloud.html" class="active">Cloud</a>
+    <a href="stats.html">Stats</a>
+    <a href="cozinha.html">Cozinha</a>
+  </nav>
+  <main id="cloud-root">
+    <div class="row wrap filters-cloud">
+      <label>Data <input type="date" id="cloud-date" /></label>
+      <label>Turno
+        <select id="cloud-shift">
+          <option value="">Todos</option>
+          <option value="manha">Manhã</option>
+          <option value="tarde">Tarde</option>
+          <option value="noite">Noite</option>
+        </select>
+      </label>
+      <label>Estado
+        <select id="cloud-status">
+          <option value="">Todos</option>
+          <option value="new">Novo</option>
+          <option value="preparing">Em preparação</option>
+          <option value="ready">Pronto</option>
+          <option value="completed">Concluído</option>
+        </select>
+      </label>
+    </div>
+    <div id="cloud-metrics"></div>
+  </main>
+  <script src="menu-data.js"></script>
+  <script src="store.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
